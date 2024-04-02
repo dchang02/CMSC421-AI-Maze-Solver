@@ -6,4 +6,4 @@
 - Using a variety of uninformed and informed search strategies, the program will proceed to solve the maze.
 - There will be settings to control the size of the maze and what algorithm is being used to solve the maze.
 - The program will have a visual display of which maze cells have not been visited yet and which cells have been visited.
-- After the maze is solved, the program will display the optimal path from the starting cell to the ending cell.
+- After the maze is solved, the program will display the chosen search algorithm's path from the starting cell to the ending cell.
