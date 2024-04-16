@@ -8,6 +8,9 @@ from gymnasium import spaces
 import numpy as np
 import pygame
 import math
+from IPython.display import clear_output
+from matplotlib import pyplot as plt
+from PIL import Image
 
 class Maze():
 
@@ -32,9 +35,45 @@ class Maze():
     # Euclidean distance heuristic function
     def euclidean_distance(self, cur_row, cur_col, goal_row, goal_col):
         return math.sqrt((cur_row - goal_row)**2 + (cur_col - goal_col)**2)
+    
+    def _render_frame(self, screen, window_width, window_height):
+        screen.fill("white")
+
+        cell_x = window_width / self.maze_length 
+        cell_y = window_height / self.maze_length 
+
+        for i in range(len(self.maze)):
+            for j in range(len(self.maze[i])):
+                if self.maze[i][j] == 'X':
+                    pygame.draw.rect(screen, "black", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
+                elif self.maze[i][j] == 'G':
+                    pygame.draw.rect(screen, "green", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
+
+    def render(self, screen, window_width, window_height):
+        return self._render_frame(screen, window_width, window_height)
 
 # TESTING CODE
 maze = Maze(10)
 print(maze.maze)
 print(maze.manhattan_distance(0, 0, 3, 7))
 print(maze.euclidean_distance(0, 0, 10, 10))
+
+
+window_width = 400
+window_height = 400
+pygame.init()
+screen = pygame.display.set_mode((window_width, window_height))
+ 
+
+maze.render(screen, window_width, window_height)
+view = pygame.surfarray.array3d(screen)
+
+# displaying using plt
+plt.imshow(view, interpolation='nearest')
+plt.show()
+
+# displaying using PIL, saves as local file
+img = Image.fromarray(view, 'RGB')
+#with open("my.png", 'wb') as f:
+img.save("maze.png")
+img.show()
