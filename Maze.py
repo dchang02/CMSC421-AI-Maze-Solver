@@ -8,6 +8,7 @@ from gymnasium import spaces
 import numpy as np
 import pygame
 import math
+import heapq
 from IPython.display import clear_output
 from matplotlib import pyplot as plt
 from PIL import Image
@@ -36,6 +37,32 @@ class Maze():
     def euclidean_distance(self, cur_row, cur_col, goal_row, goal_col):
         return math.sqrt((cur_row - goal_row)**2 + (cur_col - goal_col)**2)
     
+    # Checks if cell is within the bounds of the maze
+    def is_valid(self, row, col):
+        return (row >= 0) and (row < self.maze_length) and (col >= 0) and (col < self.maze_length)
+    
+    # Checks that cell is valid and open
+    def is_open(self, row, col):
+        if self.is_valid(row, col) == False:
+            return False
+        else:
+            return self.maze[row][col] == 'O'
+        
+    # Checks if cell is valid and the goal
+    def is_goal(self, row, col):
+        if self.is_valid(row, col) == False:
+            return False
+        else:
+            return self.maze[row][col] == 'G'
+
+    # Returns a list for the solution and a list for the cells visited
+    def a_star_manhattan(self):
+        pass
+
+    # Returns a list for the solution and a list for the cells visited
+    def a_star_euclidean(self):
+        pass
+
     def _render_frame(self, screen, window_width, window_height):
         screen.fill("white")
 
