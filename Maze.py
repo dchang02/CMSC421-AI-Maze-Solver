@@ -3,6 +3,7 @@
 # python.exe -m pip install --upgrade pip --user
 # pip install pygame
 
+from collections import deque
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
@@ -54,6 +55,34 @@ class Maze():
             return False
         else:
             return self.maze[row][col] == 'G'
+        
+    def bfs(self):
+        # Starting point
+        start_row, start_col = 0, 0
+        # Check if start is the goal
+        if self.is_goal(start_row, start_col):
+            return [(start_row, start_col)], [(start_row, start_col)]
+
+        # Queue for BFS with (row, col, path taken to reach here)
+        queue = deque([(start_row, start_col, [(start_row, start_col)])])
+        visited = set()
+        visited.add((start_row, start_col))
+
+        while queue:
+            current_row, current_col, path = queue.popleft()
+
+            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                new_row, new_col = current_row + dr, current_col + dc
+
+                if self.is_valid(new_row, new_col) and (new_row, new_col) not in visited:
+                    if self.is_open(new_row, new_col) or self.is_goal(new_row, new_col):
+                        new_path = path + [(new_row, new_col)]
+                        if self.is_goal(new_row, new_col):
+                            return new_path, list(visited)
+                        queue.append((new_row, new_col, new_path))
+                        visited.add((new_row, new_col))
+
+        return [], list(visited)
 
     # Returns a list for the solution and a list for the cells visited
     def a_star_manhattan(self):
