@@ -57,9 +57,9 @@ class Maze():
             return self.maze[row][col] == 'G'
         
     def bfs(self):
-        # Starting point
+
         start_row, start_col = 0, 0
-        # Check if start is the goal
+
         if self.is_goal(start_row, start_col):
             return [(start_row, start_col)], [(start_row, start_col)]
 
@@ -80,6 +80,32 @@ class Maze():
                         if self.is_goal(new_row, new_col):
                             return new_path, list(visited)
                         queue.append((new_row, new_col, new_path))
+                        visited.add((new_row, new_col))
+
+        return [], list(visited)
+    
+    def dfs(self):
+        start_row, start_col = 0, 0
+        if self.is_goal(start_row, start_col):
+            return [(start_row, start_col)], [(start_row, start_col)]
+
+        # Stack for DFS with (row, col, path taken to reach here)
+        stack = [(start_row, start_col, [(start_row, start_col)])]
+        visited = set()
+        visited.add((start_row, start_col))
+
+        while stack:
+            current_row, current_col, path = stack.pop()
+
+            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                new_row, new_col = current_row + dr, current_col + dc
+
+                if self.is_valid(new_row, new_col) and (new_row, new_col) not in visited:
+                    if self.is_open(new_row, new_col) or self.is_goal(new_row, new_col):
+                        new_path = path + [(new_row, new_col)]
+                        if self.is_goal(new_row, new_col):
+                            return new_path, list(visited)
+                        stack.append((new_row, new_col, new_path))
                         visited.add((new_row, new_col))
 
         return [], list(visited)
