@@ -13,19 +13,20 @@ import heapq
 from IPython.display import clear_output
 from matplotlib import pyplot as plt
 from PIL import Image
+import os
 
 class Maze():
 
-    def __init__(self, maze_length) -> None:
+    def __init__(self, maze_length, wall_probability) -> None:
         self.maze_length = maze_length
+        self.wall_probability = wall_probability
         self.maze = self.generate_maze(maze_length)
 
     # Generates maze by using 'X' as walls and 'O' as open space
     def generate_maze(self, n):
         symbols = ['X', 'O']
-        wall_probability = 0.3  # Probability of a cell being a wall. Can change based on difficulty of maze
-        open_probability = 1 - wall_probability
-        matrix = np.random.choice(symbols, size=(n, n), p=[wall_probability, open_probability])
+        open_probability = 1 - self.wall_probability
+        matrix = np.random.choice(symbols, size=(n, n), p=[self.wall_probability, open_probability])
         matrix[0, 0] = 'O'  # Guarantees start is open
         matrix[-1, -1] = 'G'    # Makes the bottom-right cell the goal
         return matrix
@@ -282,7 +283,7 @@ class Maze():
         # No path found
         return None, searched_cells
 
-    def _render_frame(self, screen, window_width, window_height):
+    def _render_frame(self, screen, window_width, window_height, row, col):
         screen.fill("white")
 
         cell_x = window_width / self.maze_length 
@@ -294,12 +295,19 @@ class Maze():
                     pygame.draw.rect(screen, "black", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
                 elif self.maze[i][j] == 'G':
                     pygame.draw.rect(screen, "green", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
+        radius = min(cell_x / 2, cell_y / 2)
+        circle_x = cell_x * row + radius
+        circle_y = cell_y * col + radius
+
+        circle_pos = pygame.Vector2(circle_x, circle_y)
+
+        pygame.draw.circle(screen, "blue", circle_pos, radius)
 
     def render(self, screen, window_width, window_height):
         return self._render_frame(screen, window_width, window_height)
 
 # TESTING CODE
-maze = Maze(15)
+"""maze = Maze(15)
 print(maze.maze)
 
 path, searched = maze.a_star_manhattan()
@@ -309,24 +317,46 @@ path, searched = maze.a_star_euclidean()
 print(path)
 
 path, searched = maze.a_star_diagonal()
+print(path)"""
+
+
+maze = Maze(10, 0.3)
+
+window_width = 400
+window_height = 400
+pygame.init()
+screen = pygame.display.set_mode((window_width, window_height))
+
+path, visited = maze.dfs()
 print(path)
+print(visited)
 
+if not os.path.exists("frames/dfs/"):
+    os.makedirs("frames/dfs/")
+if not os.path.exists("frames/bfs/"):
+    os.makedirs("frames/bfs/")
+count = 0
+for (row, col) in path:
 
-# window_width = 400
-# window_height = 400
-# pygame.init()
-# screen = pygame.display.set_mode((window_width, window_height))
- 
+    count += 1
+    maze._render_frame(screen, window_width, window_height, row, col)
+    view = pygame.surfarray.array3d(screen)
 
-# maze.render(screen, window_width, window_height)
-# view = pygame.surfarray.array3d(screen)
+    img = Image.fromarray(view, 'RGB')
+    img.save(f"frames/dfs/dfs_{count}.png")
+    # img.show()
+    # time.sleep(1)
 
-# # displaying using plt
-# plt.imshow(view, interpolation='nearest')
-# plt.show()
+path, visited = maze.bfs()
+print(path)
+print(visited)
 
-# # displaying using PIL, saves as local file
-# img = Image.fromarray(view, 'RGB')
-# #with open("my.png", 'wb') as f:
-# img.save("maze.png")
-# img.show()
+count = 0
+for (row, col) in path:
+
+    count += 1
+    maze._render_frame(screen, window_width, window_height, row, col)
+    view = pygame.surfarray.array3d(screen)
+
+    img = Image.fromarray(view, 'RGB')
+    img.save(f"frames/bfs/bfs_{count}.png")
