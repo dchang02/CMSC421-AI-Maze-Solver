@@ -5,24 +5,22 @@ from PIL import ImageTk, Image
 import pygame
 import os
 
+def initialize_folders(algorithms):
+    for alg in algorithms:
+        if not os.path.exists(f"path/{alg.lower()}/"):
+            os.makedirs(f"path/{alg.lower()}/")
+        if not os.path.exists(f"visited/{alg.lower()}/"):
+            os.makedirs(f"visited/{alg.lower()}/")
+        Maze.delete_files_in_directory(f"path/{alg.lower()}/")
+        Maze.delete_files_in_directory(f"visited/{alg.lower()}/")
 
-def delete_files_in_directory(directory_path):
-   try:
-     files = os.listdir(directory_path)
-     for file in files:
-       file_path = os.path.join(directory_path, file)
-       if os.path.isfile(file_path):
-         os.remove(file_path)
-     print("All files deleted successfully.")
-   except OSError:
-     print("Error occurred while deleting files.")
 
 def generate_maze():
+
     selected_algorithm = algorithms_var.get()
     maze_size = int(size_entry.get())
     maze = Maze.Maze(maze_size, 0.3)
     path = []
-    #while path == []:
     if selected_algorithm == "BFS":
         path, visited = maze.bfs()
     elif selected_algorithm == "DFS":
@@ -35,8 +33,6 @@ def generate_maze():
         path, visited = maze.a_star_euclidean()
     print(visited)
     
-
-    delete_files_in_directory(f"frames/{selected_algorithm.lower()}/")
     window_width = 400
     window_height = 400
     pygame.init()
@@ -49,13 +45,13 @@ def generate_maze():
         view = pygame.surfarray.array3d(screen)
 
         img = Image.fromarray(view, 'RGB')
-        img.save(f"frames/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
+        img.save(f"visited/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
 
     pygame.quit()
     display_slideshow(selected_algorithm)
 
 def display_slideshow(selected_algorithm):
-    image_folder = f"frames/{selected_algorithm.lower()}"
+    image_folder = f"visited/{selected_algorithm.lower()}"
     image_list = [os.path.join(image_folder, img) for img in os.listdir(image_folder) if img.endswith(".png")]
     image_list.sort()
 
@@ -71,16 +67,7 @@ def display_slideshow(selected_algorithm):
     
     update_image()
 
-if not os.path.exists("frames/dfs/"):
-    os.makedirs("frames/dfs/")
-if not os.path.exists("frames/bfs/"):
-    os.makedirs("frames/bfs/")
-if not os.path.exists("frames/A Star Manhattan/"):
-    os.makedirs("frames/A Star Manhattan/")
-if not os.path.exists("frames/A Star Diagonal/"):
-    os.makedirs("frames/A Star Diagonal/")
-if not os.path.exists("frames/A Star Euclidean/"):
-    os.makedirs("frames/A Star Euclidean/")
+initialize_folders(["BFS", "DFS", "A Star Manhattan", "A Star Diagonal", "A Star Euclidean"])
 
 # Create main window
 root = tk.Tk()

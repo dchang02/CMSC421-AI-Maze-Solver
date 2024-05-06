@@ -319,59 +319,66 @@ class Maze():
         for (row, col) in visited:
             pygame.draw.rect(screen, "red", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
 
-
+def delete_files_in_directory(directory_path):
+   try:
+     files = os.listdir(directory_path)
+     for file in files:
+       file_path = os.path.join(directory_path, file)
+       if os.path.isfile(file_path):
+         os.remove(file_path)
+     print("All files deleted successfully.")
+   except OSError:
+     print("Error occurred while deleting files.")
 
 # TESTING CODE
-"""maze = Maze(15, 0.3)
-print(maze.maze)
 
-path, searched = maze.a_star_manhattan()
-print(path)
-
-path, searched = maze.a_star_euclidean()
-print(path)
-
-path, searched = maze.a_star_diagonal()
-print(path)"""
-
-"""
+# Maze(size, wall_prob)
 maze = Maze(10, 0.3)
 
+
+# initiating the canvas
 window_width = 400
 window_height = 400
 pygame.init()
 screen = pygame.display.set_mode((window_width, window_height))
 
-path, visited = maze.dfs()
-print(path)
-print(visited)
-
-if not os.path.exists("frames/dfs/"):
-    os.makedirs("frames/dfs/")
-if not os.path.exists("frames/bfs/"):
-    os.makedirs("frames/bfs/")
-count = 0
-for (row, col) in path:
-
-    count += 1
-    maze._render_frame(screen, window_width, window_height, row, col)
-    view = pygame.surfarray.array3d(screen)
-
-    img = Image.fromarray(view, 'RGB')
-    img.save(f"frames/dfs/dfs_{count}.png")
-    # img.show()
-    # time.sleep(1)
-
+# getting the path and visited from selected alg
+# both variables are lists
 path, visited = maze.bfs()
 print(path)
 print(visited)
 
+# make the directory for storing images 
+if not os.path.exists("path/bfs/"):
+    os.makedirs("path/bfs/")
+if not os.path.exists("visited/bfs/"):
+    os.makedirs("visited/bfs/")
+delete_files_in_directory("path/bfs/")
+delete_files_in_directory("visited/bfs/")
+
 count = 0
+
+# for each pair of coords in solution path, render the frame and save it
 for (row, col) in path:
 
     count += 1
-    maze._render_frame(screen, window_width, window_height, row, col)
+    maze.render_agent(screen, window_width, window_height, row, col)
     view = pygame.surfarray.array3d(screen)
 
     img = Image.fromarray(view, 'RGB')
-    img.save(f"frames/bfs/bfs_{count}.png")"""
+    img.save(f"path/bfs/bfs_{count}.png")
+    # img.show()
+    # time.sleep(1)
+
+count = 0
+# alternatively, for visited cells so far, a different render method is used
+for i in range(len(visited)):
+
+    count += 1
+    maze.render_visited(screen, window_width, window_height, visited[:i+1])
+    view = pygame.surfarray.array3d(screen)
+
+    img = Image.fromarray(view, 'RGB')
+    img.save(f"visited/bfs/bfs_{count}.png")
+    # img.show()
+    # time.sleep(1)
