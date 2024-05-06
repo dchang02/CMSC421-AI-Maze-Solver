@@ -23,7 +23,7 @@ class Maze():
     # Generates maze by using 'X' as walls and 'O' as open space
     def generate_maze(self, n):
         symbols = ['X', 'O']
-        wall_probability = 0.1  # Probability of a cell being a wall. Can change based on difficulty of maze
+        wall_probability = 0.3  # Probability of a cell being a wall. Can change based on difficulty of maze
         open_probability = 1 - wall_probability
         matrix = np.random.choice(symbols, size=(n, n), p=[wall_probability, open_probability])
         matrix[0, 0] = 'O'  # Guarantees start is open
@@ -37,6 +37,14 @@ class Maze():
     # Euclidean distance heuristic function
     def euclidean_distance(self, cur_row, cur_col, goal_row, goal_col):
         return math.sqrt((cur_row - goal_row)**2 + (cur_col - goal_col)**2)
+    
+    # Diagonal distance heuristic function
+    def diagonal_distance(self, cur_row, cur_col, goal_row, goal_col):
+        d_row = abs(cur_row - goal_row)
+        d_col = abs(cur_col - goal_col)
+        d = 1
+        d2 = math.sqrt(2)
+        return d * (d_row + d_col) + (d2 - 2 * d) * min(d_row, d_col)
     
     # Checks if cell is within the bounds of the maze
     def is_valid(self, row, col):
@@ -111,15 +119,17 @@ class Maze():
         return [], list(visited)
 
     # Returns the path from the starting cell to the goal cell
-    def create_path(self, start, came_from, current):
+    def create_path(self, start, previous_cells, current):
+        
         path = []
 
-        while current in came_from:
+        while current in previous_cells:
             path.append(current)
-            current = came_from[current]
+            current = previous_cells[current]
 
         path.append(start)
         path.reverse()
+
         return path
 
     # Runs the A* Search algorithm using the Manhattan distance heuristic.
@@ -128,12 +138,13 @@ class Maze():
         
         start = (0, 0)
         goal = (self.maze_length - 1, self.maze_length - 1)
+
+        g_cost = {start: 0}
         queue = [(0, start)]
         searched_cells = []
+        previous_cells = {}
 
         heapq.heappush(queue, (0, start))
-        came_from = {}
-        g_score = {start: 0}
 
         # Runs until there are no more cells to be checked
         while queue:
@@ -146,25 +157,27 @@ class Maze():
 
             # Creates solution path when goal is found
             if self.is_goal(current[0], current[1]):
-                return self.create_path(start, came_from, current), searched_cells
+                return self.create_path(start, previous_cells, current), searched_cells
             
-            # Explores the neighbors of the current cell
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                x = current[0] + dx
-                y = current[1] + dy
-                neighbor = (x, y)
+            adjacent = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
-                tentative_g = g_score[current] + 1
+            # Explores the neighbors of the current cell
+            for row_diff, col_diff in adjacent:
+                row = current[0] + row_diff
+                col = current[1] + col_diff
+                neighbor = (row, col)
+
+                curr_g_cost = g_cost[current] + 1
                 
                 # Checks that the cell is valid and is not a wall
-                if self.is_valid(x, y) and (self.is_open(x, y) or self.is_goal(x, y)):
+                if self.is_valid(row, col) and (self.is_open(row, col) or self.is_goal(row, col)):
 
-                    # Updates g_score if a better path is found
-                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                        g_score[neighbor] = tentative_g
-                        f_score = tentative_g + self.manhattan_distance(neighbor[0], neighbor[1], goal[0], goal[1])
-                        heapq.heappush(queue, (f_score, neighbor))
-                        came_from[neighbor] = current
+                    # Updates g_cost if a better path is found
+                    if neighbor not in g_cost or curr_g_cost < g_cost[neighbor]:
+                        g_cost[neighbor] = curr_g_cost
+                        f_cost = curr_g_cost + self.manhattan_distance(neighbor[0], neighbor[1], goal[0], goal[1])
+                        previous_cells[neighbor] = current
+                        heapq.heappush(queue, (f_cost, neighbor))
     
         # No path found
         return None, searched_cells
@@ -175,12 +188,13 @@ class Maze():
         
         start = (0, 0)
         goal = (self.maze_length - 1, self.maze_length - 1)
+
+        g_cost = {start: 0}
         queue = [(0, start)]
         searched_cells = []
+        previous_cells = {}
 
         heapq.heappush(queue, (0, start))
-        came_from = {}
-        g_score = {start: 0}
 
         # Runs until there are no more cells to be checked
         while queue:
@@ -193,25 +207,77 @@ class Maze():
 
             # Creates solution path when goal is found
             if self.is_goal(current[0], current[1]):
-                return self.create_path(start, came_from, current), searched_cells
+                return self.create_path(start, previous_cells, current), searched_cells
             
-            # Explores the neighbors of the current cell
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                x = current[0] + dx
-                y = current[1] + dy
-                neighbor = (x, y)
+            adjacent = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
-                tentative_g = g_score[current] + 1
+            # Explores the neighbors of the current cell
+            for row_diff, col_diff in adjacent:
+                row = current[0] + row_diff
+                col = current[1] + col_diff
+                neighbor = (row, col)
+
+                curr_g_cost = g_cost[current] + 1
                 
                 # Checks that the cell is valid and is not a wall
-                if self.is_valid(x, y) and (self.is_open(x, y) or self.is_goal(x, y)):
-                    
-                    # Updates g_score if a better path is found
-                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                        g_score[neighbor] = tentative_g
-                        f_score = tentative_g + self.euclidean_distance(neighbor[0], neighbor[1], goal[0], goal[1])
-                        heapq.heappush(queue, (f_score, neighbor))
-                        came_from[neighbor] = current
+                if self.is_valid(row, col) and (self.is_open(row, col) or self.is_goal(row, col)):
+
+                    # Updates g_cost if a better path is found
+                    if neighbor not in g_cost or curr_g_cost < g_cost[neighbor]:
+                        g_cost[neighbor] = curr_g_cost
+                        f_cost = curr_g_cost + self.euclidean_distance(neighbor[0], neighbor[1], goal[0], goal[1])
+                        previous_cells[neighbor] = current
+                        heapq.heappush(queue, (f_cost, neighbor))
+    
+        # No path found
+        return None, searched_cells
+    
+    # Runs the A* Search algorithm using the Diagonal distance heuristic.
+    # Returns a list for the solution path and a list for the cells visited
+    def a_star_diagonal(self):
+        
+        start = (0, 0)
+        goal = (self.maze_length - 1, self.maze_length - 1)
+
+        g_cost = {start: 0}
+        queue = [(0, start)]
+        searched_cells = []
+        previous_cells = {}
+
+        heapq.heappush(queue, (0, start))
+
+        # Runs until there are no more cells to be checked
+        while queue:
+
+            _, current = heapq.heappop(queue)
+
+            # Does not keep track of repeated visits to a cell
+            if current not in searched_cells:
+                searched_cells.append(current)
+
+            # Creates solution path when goal is found
+            if self.is_goal(current[0], current[1]):
+                return self.create_path(start, previous_cells, current), searched_cells
+            
+            adjacent = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+            # Explores the neighbors of the current cell
+            for row_diff, col_diff in adjacent:
+                row = current[0] + row_diff
+                col = current[1] + col_diff
+                neighbor = (row, col)
+
+                curr_g_cost = g_cost[current] + 1
+                
+                # Checks that the cell is valid and is not a wall
+                if self.is_valid(row, col) and (self.is_open(row, col) or self.is_goal(row, col)):
+
+                    # Updates g_cost if a better path is found
+                    if neighbor not in g_cost or curr_g_cost < g_cost[neighbor]:
+                        g_cost[neighbor] = curr_g_cost
+                        f_cost = curr_g_cost + self.diagonal_distance(neighbor[0], neighbor[1], goal[0], goal[1])
+                        previous_cells[neighbor] = current
+                        heapq.heappush(queue, (f_cost, neighbor))
     
         # No path found
         return None, searched_cells
@@ -233,14 +299,17 @@ class Maze():
         return self._render_frame(screen, window_width, window_height)
 
 # TESTING CODE
-maze = Maze(10)
+maze = Maze(15)
 print(maze.maze)
 
-#path, searched = maze.a_star_manhattan()
-#print(searched)
+path, searched = maze.a_star_manhattan()
+print(path)
 
-#path, searched = maze.a_star_euclidean()
-#print(searched)
+path, searched = maze.a_star_euclidean()
+print(path)
+
+path, searched = maze.a_star_diagonal()
+print(path)
 
 
 # window_width = 400
