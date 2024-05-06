@@ -181,7 +181,7 @@ class Maze():
                         heapq.heappush(queue, (f_cost, neighbor))
     
         # No path found
-        return None, searched_cells
+        return [], searched_cells
 
     # Runs the A* Search algorithm using the Euclidean distance heuristic.
     # Returns a list for the solution path and a list for the cells visited
@@ -231,7 +231,7 @@ class Maze():
                         heapq.heappush(queue, (f_cost, neighbor))
     
         # No path found
-        return None, searched_cells
+        return [], searched_cells
     
     # Runs the A* Search algorithm using the Diagonal distance heuristic.
     # Returns a list for the solution path and a list for the cells visited
@@ -281,7 +281,7 @@ class Maze():
                         heapq.heappush(queue, (f_cost, neighbor))
     
         # No path found
-        return None, searched_cells
+        return [], searched_cells
 
     def _render_frame(self, screen, window_width, window_height, row, col):
         screen.fill("white")
@@ -307,7 +307,7 @@ class Maze():
         return self._render_frame(screen, window_width, window_height)
 
 # TESTING CODE
-"""maze = Maze(15)
+maze = Maze(15, 0.3)
 print(maze.maze)
 
 path, searched = maze.a_star_manhattan()
@@ -317,9 +317,9 @@ path, searched = maze.a_star_euclidean()
 print(path)
 
 path, searched = maze.a_star_diagonal()
-print(path)"""
+print(path)
 
-
+"""
 maze = Maze(10, 0.3)
 
 window_width = 400
@@ -359,4 +359,4 @@ for (row, col) in path:
     view = pygame.surfarray.array3d(screen)
 
     img = Image.fromarray(view, 'RGB')
-    img.save(f"frames/bfs/bfs_{count}.png")
+    img.save(f"frames/bfs/bfs_{count}.png")"""

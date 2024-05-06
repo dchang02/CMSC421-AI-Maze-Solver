@@ -1,10 +1,119 @@
 import Maze
-from tkinter import *
-from tkinter import ttk
+import tkinter as tk
+from tkinter import filedialog
+from PIL import ImageTk, Image
+import pygame
+import os
 
 
-window_height = 720
-window_width = 1280
-font_size = 12
-window = Tk()
-frame_ = ttk.Frame(window, padding=10)
+def delete_files_in_directory(directory_path):
+   try:
+     files = os.listdir(directory_path)
+     for file in files:
+       file_path = os.path.join(directory_path, file)
+       if os.path.isfile(file_path):
+         os.remove(file_path)
+     print("All files deleted successfully.")
+   except OSError:
+     print("Error occurred while deleting files.")
+
+def generate_maze():
+    selected_algorithm = algorithms_var.get()
+    maze_size = int(size_entry.get())
+    maze = Maze.Maze(maze_size, 0.3)
+    path = []
+    #while path == []:
+    if selected_algorithm == "BFS":
+        path, visited = maze.bfs()
+    elif selected_algorithm == "DFS":
+        path, visited = maze.dfs()
+    elif selected_algorithm == "A Star Manhattan":
+        path, visited = maze.a_star_manhattan()
+    elif selected_algorithm == "A Star Diagonal":
+        path, visited = maze.a_star_diagonal()
+    elif selected_algorithm == "A Star Euclidean":
+        path, visited = maze.a_star_euclidean()
+    print(path)
+    
+
+    delete_files_in_directory(f"frames/{selected_algorithm.lower()}/")
+    window_width = 400
+    window_height = 400
+    pygame.init()
+    screen = pygame.display.set_mode((window_width, window_height))
+    count = 0
+    for (row, col) in path:
+
+        count += 1
+        maze._render_frame(screen, window_width, window_height, row, col)
+        view = pygame.surfarray.array3d(screen)
+
+        img = Image.fromarray(view, 'RGB')
+        img.save(f"frames/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
+    pygame.quit()
+    display_slideshow(selected_algorithm)
+
+def display_slideshow(selected_algorithm):
+    image_folder = f"frames/{selected_algorithm.lower()}"
+    image_list = [os.path.join(image_folder, img) for img in os.listdir(image_folder) if img.endswith(".png")]
+    image_list.sort()
+
+    def update_image(index=0):
+        image = Image.open(image_list[index])
+        image = image.resize((400, 400))
+        img_tk = ImageTk.PhotoImage(image)
+        image_label.config(image=img_tk)
+        image_label.image = img_tk
+        index += 1
+        if index < len(image_list):
+            root.after(200, update_image, index)
+    
+    update_image()
+
+if not os.path.exists("frames/dfs/"):
+    os.makedirs("frames/dfs/")
+if not os.path.exists("frames/bfs/"):
+    os.makedirs("frames/bfs/")
+if not os.path.exists("frames/A Star Manhattan/"):
+    os.makedirs("frames/A Star Manhattan/")
+if not os.path.exists("frames/A Star Diagonal/"):
+    os.makedirs("frames/A Star Diagonal/")
+if not os.path.exists("frames/A Star Euclidean/"):
+    os.makedirs("frames/A Star Euclidean/")
+# Create main window
+root = tk.Tk()
+root.title("Maze Generator App")
+root.geometry("800x400")
+
+# Create left and right frames
+left_frame = tk.Frame(root, width=400, height=400, bg='gray')
+left_frame.pack_propagate(0)
+left_frame.pack(side=tk.LEFT)
+
+right_frame = tk.Frame(root, width=400, height=400, bg='white')
+right_frame.pack_propagate(0)
+right_frame.pack(side=tk.RIGHT)
+
+
+# Dropdown menu for selecting algorithms
+algorithms = ["BFS", "DFS", "A Star Manhattan", "A Star Diagonal", "A Star Euclidean"]
+algorithms_var = tk.StringVar()
+algorithms_var.set(algorithms[0])
+algorithms_menu = tk.OptionMenu(left_frame, algorithms_var, *algorithms)
+algorithms_menu.pack(pady=5)
+
+# Entry field for maze size
+size_label = tk.Label(left_frame, text="Enter Maze Size:")
+size_label.pack(pady=5)
+size_entry = tk.Entry(left_frame)
+size_entry.pack(pady=5)
+
+# Generate maze button
+generate_button = tk.Button(left_frame, text="Generate Maze", command=generate_maze)
+generate_button.pack(pady=5)
+
+# Widget for the right frame
+image_label = tk.Label(right_frame)
+image_label.pack()
+
+root.mainloop()
