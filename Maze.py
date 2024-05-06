@@ -23,7 +23,7 @@ class Maze():
     # Generates maze by using 'X' as walls and 'O' as open space
     def generate_maze(self, n):
         symbols = ['X', 'O']
-        wall_probability = 0.5  # Probability of a cell being a wall. Can change based on difficulty of maze
+        wall_probability = 0.1  # Probability of a cell being a wall. Can change based on difficulty of maze
         open_probability = 1 - wall_probability
         matrix = np.random.choice(symbols, size=(n, n), p=[wall_probability, open_probability])
         matrix[0, 0] = 'O'  # Guarantees start is open
@@ -110,13 +110,111 @@ class Maze():
 
         return [], list(visited)
 
-    # Returns a list for the solution and a list for the cells visited
-    def a_star_manhattan(self):
-        pass
+    # Returns the path from the starting cell to the goal cell
+    def create_path(self, start, came_from, current):
+        path = []
 
-    # Returns a list for the solution and a list for the cells visited
+        while current in came_from:
+            path.append(current)
+            current = came_from[current]
+
+        path.append(start)
+        path.reverse()
+        return path
+
+    # Runs the A* Search algorithm using the Manhattan distance heuristic.
+    # Returns a list for the solution path and a list for the cells visited
+    def a_star_manhattan(self):
+        
+        start = (0, 0)
+        goal = (self.maze_length - 1, self.maze_length - 1)
+        queue = [(0, start)]
+        searched_cells = []
+
+        heapq.heappush(queue, (0, start))
+        came_from = {}
+        g_score = {start: 0}
+
+        # Runs until there are no more cells to be checked
+        while queue:
+
+            _, current = heapq.heappop(queue)
+
+            # Does not keep track of repeated visits to a cell
+            if current not in searched_cells:
+                searched_cells.append(current)
+
+            # Creates solution path when goal is found
+            if self.is_goal(current[0], current[1]):
+                return self.create_path(start, came_from, current), searched_cells
+            
+            # Explores the neighbors of the current cell
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                x = current[0] + dx
+                y = current[1] + dy
+                neighbor = (x, y)
+
+                tentative_g = g_score[current] + 1
+                
+                # Checks that the cell is valid and is not a wall
+                if self.is_valid(x, y) and (self.is_open(x, y) or self.is_goal(x, y)):
+
+                    # Updates g_score if a better path is found
+                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                        g_score[neighbor] = tentative_g
+                        f_score = tentative_g + self.manhattan_distance(neighbor[0], neighbor[1], goal[0], goal[1])
+                        heapq.heappush(queue, (f_score, neighbor))
+                        came_from[neighbor] = current
+    
+        # No path found
+        return None, searched_cells
+
+    # Runs the A* Search algorithm using the Euclidean distance heuristic.
+    # Returns a list for the solution path and a list for the cells visited
     def a_star_euclidean(self):
-        pass
+        
+        start = (0, 0)
+        goal = (self.maze_length - 1, self.maze_length - 1)
+        queue = [(0, start)]
+        searched_cells = []
+
+        heapq.heappush(queue, (0, start))
+        came_from = {}
+        g_score = {start: 0}
+
+        # Runs until there are no more cells to be checked
+        while queue:
+
+            _, current = heapq.heappop(queue)
+
+            # Does not keep track of repeated visits to a cell
+            if current not in searched_cells:
+                searched_cells.append(current)
+
+            # Creates solution path when goal is found
+            if self.is_goal(current[0], current[1]):
+                return self.create_path(start, came_from, current), searched_cells
+            
+            # Explores the neighbors of the current cell
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                x = current[0] + dx
+                y = current[1] + dy
+                neighbor = (x, y)
+
+                tentative_g = g_score[current] + 1
+                
+                # Checks that the cell is valid and is not a wall
+                if self.is_valid(x, y) and (self.is_open(x, y) or self.is_goal(x, y)):
+                    
+                    # Updates g_score if a better path is found
+                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                        g_score[neighbor] = tentative_g
+                        f_score = tentative_g + self.euclidean_distance(neighbor[0], neighbor[1], goal[0], goal[1])
+                        heapq.heappush(queue, (f_score, neighbor))
+                        came_from[neighbor] = current
+    
+        # No path found
+        return None, searched_cells
 
     def _render_frame(self, screen, window_width, window_height):
         screen.fill("white")
@@ -137,25 +235,29 @@ class Maze():
 # TESTING CODE
 maze = Maze(10)
 print(maze.maze)
-print(maze.manhattan_distance(0, 0, 3, 7))
-print(maze.euclidean_distance(0, 0, 10, 10))
+
+#path, searched = maze.a_star_manhattan()
+#print(searched)
+
+#path, searched = maze.a_star_euclidean()
+#print(searched)
 
 
-window_width = 400
-window_height = 400
-pygame.init()
-screen = pygame.display.set_mode((window_width, window_height))
+# window_width = 400
+# window_height = 400
+# pygame.init()
+# screen = pygame.display.set_mode((window_width, window_height))
  
 
-maze.render(screen, window_width, window_height)
-view = pygame.surfarray.array3d(screen)
+# maze.render(screen, window_width, window_height)
+# view = pygame.surfarray.array3d(screen)
 
-# displaying using plt
-plt.imshow(view, interpolation='nearest')
-plt.show()
+# # displaying using plt
+# plt.imshow(view, interpolation='nearest')
+# plt.show()
 
-# displaying using PIL, saves as local file
-img = Image.fromarray(view, 'RGB')
-#with open("my.png", 'wb') as f:
-img.save("maze.png")
-img.show()
+# # displaying using PIL, saves as local file
+# img = Image.fromarray(view, 'RGB')
+# #with open("my.png", 'wb') as f:
+# img.save("maze.png")
+# img.show()
