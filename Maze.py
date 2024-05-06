@@ -74,8 +74,8 @@ class Maze():
 
         # Queue for BFS with (row, col, path taken to reach here)
         queue = deque([(start_row, start_col, [(start_row, start_col)])])
-        visited = set()
-        visited.add((start_row, start_col))
+        visited = []
+        visited.append((start_row, start_col))
 
         while queue:
             current_row, current_col, path = queue.popleft()
@@ -87,11 +87,11 @@ class Maze():
                     if self.is_open(new_row, new_col) or self.is_goal(new_row, new_col):
                         new_path = path + [(new_row, new_col)]
                         if self.is_goal(new_row, new_col):
-                            return new_path, list(visited)
+                            return new_path, visited
                         queue.append((new_row, new_col, new_path))
-                        visited.add((new_row, new_col))
+                        visited.append((new_row, new_col))
 
-        return [], list(visited)
+        return [], visited
     
     def dfs(self):
         start_row, start_col = 0, 0
@@ -100,8 +100,8 @@ class Maze():
 
         # Stack for DFS with (row, col, path taken to reach here)
         stack = [(start_row, start_col, [(start_row, start_col)])]
-        visited = set()
-        visited.add((start_row, start_col))
+        visited = []
+        visited.append((start_row, start_col))
 
         while stack:
             current_row, current_col, path = stack.pop()
@@ -113,11 +113,11 @@ class Maze():
                     if self.is_open(new_row, new_col) or self.is_goal(new_row, new_col):
                         new_path = path + [(new_row, new_col)]
                         if self.is_goal(new_row, new_col):
-                            return new_path, list(visited)
+                            return new_path, visited
                         stack.append((new_row, new_col, new_path))
-                        visited.add((new_row, new_col))
+                        visited.append((new_row, new_col))
 
-        return [], list(visited)
+        return [], visited
 
     # Returns the path from the starting cell to the goal cell
     def create_path(self, start, previous_cells, current):
@@ -283,7 +283,7 @@ class Maze():
         # No path found
         return [], searched_cells
 
-    def _render_frame(self, screen, window_width, window_height, row, col):
+    def render_agent(self, screen, window_width, window_height, row, col):
         screen.fill("white")
 
         cell_x = window_width / self.maze_length 
@@ -303,11 +303,26 @@ class Maze():
 
         pygame.draw.circle(screen, "blue", circle_pos, radius)
 
-    def render(self, screen, window_width, window_height):
-        return self._render_frame(screen, window_width, window_height)
+    def render_visited(self, screen, window_width, window_height, visited):
+        screen.fill("white")
+
+        cell_x = window_width / self.maze_length 
+        cell_y = window_height / self.maze_length 
+
+        for i in range(len(self.maze)):
+            for j in range(len(self.maze[i])):
+                if self.maze[i][j] == 'X':
+                    pygame.draw.rect(screen, "black", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
+                elif self.maze[i][j] == 'G':
+                    pygame.draw.rect(screen, "green", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
+        
+        for (row, col) in visited:
+            pygame.draw.rect(screen, "red", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
+
+
 
 # TESTING CODE
-maze = Maze(15, 0.3)
+"""maze = Maze(15, 0.3)
 print(maze.maze)
 
 path, searched = maze.a_star_manhattan()
@@ -317,7 +332,7 @@ path, searched = maze.a_star_euclidean()
 print(path)
 
 path, searched = maze.a_star_diagonal()
-print(path)
+print(path)"""
 
 """
 maze = Maze(10, 0.3)

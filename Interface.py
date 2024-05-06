@@ -33,7 +33,7 @@ def generate_maze():
         path, visited = maze.a_star_diagonal()
     elif selected_algorithm == "A Star Euclidean":
         path, visited = maze.a_star_euclidean()
-    print(path)
+    print(visited)
     
 
     delete_files_in_directory(f"frames/{selected_algorithm.lower()}/")
@@ -42,14 +42,15 @@ def generate_maze():
     pygame.init()
     screen = pygame.display.set_mode((window_width, window_height))
     count = 0
-    for (row, col) in path:
+    for i in range(len(visited)):
 
         count += 1
-        maze._render_frame(screen, window_width, window_height, row, col)
+        maze.render_visited(screen, window_width, window_height, visited[:i+1])
         view = pygame.surfarray.array3d(screen)
 
         img = Image.fromarray(view, 'RGB')
         img.save(f"frames/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
+
     pygame.quit()
     display_slideshow(selected_algorithm)
 
@@ -66,7 +67,7 @@ def display_slideshow(selected_algorithm):
         image_label.image = img_tk
         index += 1
         if index < len(image_list):
-            root.after(200, update_image, index)
+            root.after(100, update_image, index)
     
     update_image()
 
@@ -80,6 +81,7 @@ if not os.path.exists("frames/A Star Diagonal/"):
     os.makedirs("frames/A Star Diagonal/")
 if not os.path.exists("frames/A Star Euclidean/"):
     os.makedirs("frames/A Star Euclidean/")
+
 # Create main window
 root = tk.Tk()
 root.title("Maze Generator App")
