@@ -31,7 +31,8 @@ class Maze():
         matrix[-1, -1] = 'G'    # Makes the bottom-right cell the goal
         return matrix
     
-      # Adjusts the probability of wall generation to change maze difficulty
+    # Adjusts the probability of wall generation to change maze difficulty
+    # Returns a newly generated maze with the new difficulty
     def change_maze_difficulty(self, difficulty):
 
         if difficulty == 0: # Open maze
@@ -45,19 +46,20 @@ class Maze():
         elif difficulty == 4:   # Expert difficulty
             self.wall_probability = 0.7
 
+        # Returns the new maze
         return self.generate_maze(self.maze_length)
 
+    # Adjust the size of the maze. Returns a newly generated maze with the new size
     def change_maze_size(self, n):
-
-        if n < 4:
+        
+        if n < 4:   # Maze length must be at least 4
             print("The minimum maze length is 4")
-        elif n > 100:
-            print("The mazimum maze length is 100")
+        elif n > 100:   # Maze length must be at most 100
+            print("The maximum maze length is 100")
         else:
             self.maze_length = n
-            return self.generate_maze(n)
+            return self.generate_maze(n)    # Returns the new maze
 
-    
     # Manhattan distance heuristic function
     def manhattan_distance(self, cur_row, cur_col, goal_row, goal_col):
         return abs(cur_row - goal_row) + abs(cur_col - goal_col)
