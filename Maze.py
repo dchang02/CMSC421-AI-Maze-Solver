@@ -31,6 +31,33 @@ class Maze():
         matrix[-1, -1] = 'G'    # Makes the bottom-right cell the goal
         return matrix
     
+      # Adjusts the probability of wall generation to change maze difficulty
+    def change_maze_difficulty(self, difficulty):
+
+        if difficulty == 0: # Open maze
+            self.wall_probability = 0.0
+        elif difficulty == 1:   # Easy difficulty
+            self.wall_probability = 0.1
+        elif difficulty == 2:   # Medium difficulty
+            self.wall_probability = 0.3
+        elif difficulty == 3:   # Hard difficulty
+            self.wall_probability = 0.5
+        elif difficulty == 4:   # Expert difficulty
+            self.wall_probability = 0.7
+
+        return self.generate_maze(self.maze_length)
+
+    def change_maze_size(self, n):
+
+        if n < 4:
+            print("The minimum maze length is 4")
+        elif n > 100:
+            print("The mazimum maze length is 100")
+        else:
+            self.maze_length = n
+            return self.generate_maze(n)
+
+    
     # Manhattan distance heuristic function
     def manhattan_distance(self, cur_row, cur_col, goal_row, goal_col):
         return abs(cur_row - goal_row) + abs(cur_col - goal_col)
@@ -283,9 +310,10 @@ class Maze():
         # No path found
         return [], searched_cells
 
-    def render_agent(self, screen, window_width, window_height, row, col):
+    def render_agent(self, screen, window_width, window_height, row, col, visited):
         screen.fill("white")
 
+        self.render_visited(screen, window_width, window_height, visited)
         cell_x = window_width / self.maze_length 
         cell_y = window_height / self.maze_length 
 
@@ -362,7 +390,7 @@ count = 0
 for (row, col) in path:
 
     count += 1
-    maze.render_agent(screen, window_width, window_height, row, col)
+    maze.render_agent(screen, window_width, window_height, row, col, [])
     view = pygame.surfarray.array3d(screen)
 
     img = Image.fromarray(view, 'RGB')

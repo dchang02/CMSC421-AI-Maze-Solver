@@ -17,6 +17,7 @@ def initialize_folders(algorithms):
 
 def generate_maze():
 
+    initialize_folders(["BFS", "DFS", "A Star Manhattan", "A Star Diagonal", "A Star Euclidean"])
     selected_algorithm = algorithms_var.get()
     maze_size = int(size_entry.get())
     maze = Maze.Maze(maze_size, 0.3)
@@ -42,6 +43,16 @@ def generate_maze():
 
         count += 1
         maze.render_visited(screen, window_width, window_height, visited[:i+1])
+        view = pygame.surfarray.array3d(screen)
+
+        img = Image.fromarray(view, 'RGB')
+        img.save(f"visited/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
+
+    #count = 0
+    for (row, col) in path:
+
+        count += 1
+        maze.render_agent(screen, window_width, window_height, row, col, visited)
         view = pygame.surfarray.array3d(screen)
 
         img = Image.fromarray(view, 'RGB')
