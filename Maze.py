@@ -527,7 +527,7 @@ class Maze():
         circle_pos = pygame.Vector2(circle_x, circle_y)
 
         for (row, col) in path:
-            pygame.draw.rect(screen, "cyan", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
+            pygame.draw.rect(screen, "green", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
 
         pygame.draw.circle(screen, "blue", circle_pos, radius)
 
