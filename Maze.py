@@ -32,7 +32,7 @@ class Maze():
         return matrix
     
     # Adjusts the probability of wall generation to change maze difficulty
-    # Returns a newly generated maze with the new difficulty
+    # Regerates a newly generated maze with the new difficulty
     def change_maze_difficulty(self, difficulty):
 
         if difficulty == 0: # Open maze
@@ -47,7 +47,7 @@ class Maze():
             self.wall_probability = 0.7
 
         # Returns the new maze
-        return self.generate_maze(self.maze_length)
+        self.maze = self.generate_maze(self.maze_length)
 
     # Adjust the size of the maze. Returns a newly generated maze with the new size
     def change_maze_size(self, n):
@@ -551,12 +551,11 @@ def delete_files_in_directory(directory_path):
        file_path = os.path.join(directory_path, file)
        if os.path.isfile(file_path):
          os.remove(file_path)
-     print("All files deleted successfully.")
    except OSError:
      print("Error occurred while deleting files.")
 
 # TESTING CODE
-
+"""
 # Maze(size, wall_prob)
 maze = Maze(10, 0.3)
 
@@ -606,4 +605,4 @@ for i in range(len(visited)):
     img = Image.fromarray(view, 'RGB')
     img.save(f"visited/bfs/bfs_{count}.png")
     # img.show()
-    # time.sleep(1)
+    # time.sleep(1)"""
