@@ -40,11 +40,11 @@ class Maze():
         elif difficulty == 1:   # Easy difficulty
             self.wall_probability = 0.1
         elif difficulty == 2:   # Medium difficulty
-            self.wall_probability = 0.3
+            self.wall_probability = 0.2
         elif difficulty == 3:   # Hard difficulty
-            self.wall_probability = 0.5
+            self.wall_probability = 0.35
         elif difficulty == 4:   # Expert difficulty
-            self.wall_probability = 0.7
+            self.wall_probability = 0.5
 
         # Returns the new maze
         self.maze = self.generate_maze(self.maze_length)
@@ -507,7 +507,7 @@ class Maze():
         # no path from start state to goal state
         return [], explored
 
-    def render_agent(self, screen, window_width, window_height, row, col, visited):
+    def render_agent(self, screen, window_width, window_height, row, col, visited, path):
         screen.fill("white")
 
         self.render_visited(screen, window_width, window_height, visited)
@@ -526,6 +526,9 @@ class Maze():
 
         circle_pos = pygame.Vector2(circle_x, circle_y)
 
+        for (row, col) in path:
+            pygame.draw.rect(screen, "cyan", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
+
         pygame.draw.circle(screen, "blue", circle_pos, radius)
 
     def render_visited(self, screen, window_width, window_height, visited):
@@ -542,7 +545,7 @@ class Maze():
                     pygame.draw.rect(screen, "green", pygame.Rect(cell_y * i, cell_x * j, cell_y, cell_x))
         
         for (row, col) in visited:
-            pygame.draw.rect(screen, "red", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
+            pygame.draw.rect(screen, "gray", pygame.Rect(cell_y * row, cell_x * col, cell_y, cell_x))
 
 def delete_files_in_directory(directory_path):
    try:

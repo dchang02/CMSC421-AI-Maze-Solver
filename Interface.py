@@ -42,7 +42,7 @@ def generate_maze():
     window_height = 400
     pygame.init()
     screen = pygame.display.set_mode((window_width, window_height))
-    maze.render_agent(screen, window_width, window_height, 0, 0, [])
+    maze.render_agent(screen, window_width, window_height, 0, 0, [], [])
     view = pygame.surfarray.array3d(screen)
 
     img = Image.fromarray(view, 'RGB')
@@ -91,17 +91,18 @@ def solve_maze():
     for i in range(len(visited)):
 
         count += 1
-        maze.render_agent(screen, window_width, window_height, 0, 0, visited[:i+1])
+        maze.render_agent(screen, window_width, window_height, 0, 0, visited[:i+1], [])
         view = pygame.surfarray.array3d(screen)
 
         img = Image.fromarray(view, 'RGB')
         img.save(f"visited/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
 
     #count = 0
-    for (row, col) in path:
+    for i in range(len(path)):
 
+        row, col = path[i]
         count += 1
-        maze.render_agent(screen, window_width, window_height, row, col, visited)
+        maze.render_agent(screen, window_width, window_height, row, col, visited, path[:i+1])
         view = pygame.surfarray.array3d(screen)
 
         img = Image.fromarray(view, 'RGB')
