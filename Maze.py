@@ -282,6 +282,201 @@ class Maze():
         # No path found
         return None, searched_cells
 
+    # Runs the Greedy Search algorithm using the Euclidean distance heuristic.
+    # Returns a list for the solution path and a list for the cells visited
+    def greedy_euclidean(self):
+        start_state = (0,0)
+        goal_state = (self.maze_length - 1, self.maze_length - 1)
+        
+        # visited set
+        visited = set()
+    
+        # solution path    
+        solution = []
+
+        # states expanded
+        explored = []
+
+        predecessor_matrix = np.full((self.maze_length, self.maze_length), None, dtype=object)
+        frontier = []
+
+        # push start state into frontier
+        item_to_push = (None, start_state)
+        h_cost = self.euclidean_distance(start_state[0], start_state[1], goal_state[0], goal_state[1])
+        heapq.heappush(frontier, (h_cost, item_to_push))
+
+        # keep running until the frontier become empty
+        while frontier:
+            _, popped_item = heapq.heappop(frontier)
+            came_from = popped_item[0]
+            current_state = popped_item[1]
+
+            # goal check
+            if (current_state == goal_state):
+                explored.append(current_state)
+                predecessor_matrix[current_state[0], current_state[1]] = came_from
+
+                # construct solution path
+                solution.append(current_state)
+                prev_state = predecessor_matrix[current_state[0], current_state[1]]
+                while (prev_state != None):
+                    solution.insert(0, prev_state)
+                    prev_state = predecessor_matrix[prev_state[0], prev_state[1]]
+                
+                return solution, explored
+
+            # do not expand a state that has already been expanded
+            if (current_state not in visited):
+                visited.add(current_state)
+                explored.append(current_state)
+                predecessor_matrix[current_state[0], current_state[1]] = came_from
+
+                # push valid neigbors into frontier
+                current_state_row = current_state[0]
+                current_state_col = current_state[1]
+                neighbors = [(current_state_row, current_state_col + 1), (current_state_row, current_state_col - 1), (current_state_row + 1, current_state_col), (current_state_row - 1, current_state_col)]
+                for neighbor in neighbors:
+                    neighbor_row = neighbor[0]
+                    neighbor_col = neighbor[1]
+                    
+                    if (self.is_open(neighbor_row, neighbor_col) or self.is_goal(neighbor_row, neighbor_col)):
+                        item_to_push = (current_state, neighbor)
+                        h_cost = self.euclidean_distance(neighbor_row, neighbor_col, goal_state[0], goal_state[1])
+                        heapq.heappush(frontier, (h_cost, item_to_push))
+        
+        # no path from start state to goal state
+        return [], explored
+
+    # Runs the Greedy Search algorithm using the Manhattan distance heuristic.
+    # Returns a list for the solution path and a list for the cells visited
+    def greedy_manhattan(self):
+        start_state = (0,0)
+        goal_state = (self.maze_length - 1, self.maze_length - 1)
+
+        # visited set
+        visited = set()
+    
+        # solution path    
+        solution = []
+
+        # states expanded
+        explored = []
+
+        predecessor_matrix = np.full((self.maze_length, self.maze_length), None, dtype=object)
+        frontier = []
+
+        # push start state into frontier
+        item_to_push = (None, start_state)
+        h_cost = self.manhattan_distance(start_state[0], start_state[1], goal_state[0], goal_state[1])
+        heapq.heappush(frontier, (h_cost, item_to_push))
+
+        # keep running until the frontier become empty
+        while frontier:
+            _, popped_item = heapq.heappop(frontier)
+            came_from = popped_item[0]
+            current_state = popped_item[1]
+
+            # goal check
+            if (current_state == goal_state):
+                explored.append(current_state)
+                predecessor_matrix[current_state[0], current_state[1]] = came_from
+
+                # construct solution path
+                solution.append(current_state)
+                prev_state = predecessor_matrix[current_state[0], current_state[1]]
+                while (prev_state != None):
+                    solution.insert(0, prev_state)
+                    prev_state = predecessor_matrix[prev_state[0], prev_state[1]]
+                
+                return solution, explored
+
+            # do not expand a state that has already been expanded
+            if (current_state not in visited):
+                visited.add(current_state)
+                explored.append(current_state)
+                predecessor_matrix[current_state[0], current_state[1]] = came_from
+
+                # push valid neigbors into frontier
+                current_state_row = current_state[0]
+                current_state_col = current_state[1]
+                neighbors = [(current_state_row, current_state_col + 1), (current_state_row, current_state_col - 1), (current_state_row + 1, current_state_col), (current_state_row - 1, current_state_col)]
+                for neighbor in neighbors:
+                    neighbor_row = neighbor[0]
+                    neighbor_col = neighbor[1]
+                    
+                    if (self.is_open(neighbor_row, neighbor_col) or self.is_goal(neighbor_row, neighbor_col)):
+                        item_to_push = (current_state, neighbor)
+                        h_cost = self.manhattan_distance(neighbor_row, neighbor_col, goal_state[0], goal_state[1])
+                        heapq.heappush(frontier, (h_cost, item_to_push))
+        
+        # no path from start state to goal state
+        return [], explored
+
+    # Runs the Greedy Search algorithm using the Diagonal distance heuristic.
+    # Returns a list for the solution path and a list for the cells visited
+    def greedy_diagonal(self):
+        start_state = (0,0)
+        goal_state = (self.maze_length - 1, self.maze_length - 1)
+
+        # visited set
+        visited = set()
+    
+        # solution path    
+        solution = []
+
+        # states expanded
+        explored = []
+
+        predecessor_matrix = np.full((self.maze_length, self.maze_length), None, dtype=object)
+        frontier = []
+
+        # push start state into frontier
+        item_to_push = (None, start_state)
+        h_cost = self.diagonal_distance(start_state[0], start_state[1], goal_state[0], goal_state[1])
+        heapq.heappush(frontier, (h_cost, item_to_push))
+
+        # keep running until the frontier become empty
+        while frontier:
+            _, popped_item = heapq.heappop(frontier)
+            came_from = popped_item[0]
+            current_state = popped_item[1]
+
+            # goal check
+            if (current_state == goal_state):
+                explored.append(current_state)
+                predecessor_matrix[current_state[0], current_state[1]] = came_from
+
+                # construct solution path
+                solution.append(current_state)
+                prev_state = predecessor_matrix[current_state[0], current_state[1]]
+                while (prev_state != None):
+                    solution.insert(0, prev_state)
+                    prev_state = predecessor_matrix[prev_state[0], prev_state[1]]
+                
+                return solution, explored
+
+            # do not expand a state that has already been expanded
+            if (current_state not in visited):
+                visited.add(current_state)
+                explored.append(current_state)
+                predecessor_matrix[current_state[0], current_state[1]] = came_from
+
+                # push valid neigbors into frontier
+                current_state_row = current_state[0]
+                current_state_col = current_state[1]
+                neighbors = [(current_state_row, current_state_col + 1), (current_state_row, current_state_col - 1), (current_state_row + 1, current_state_col), (current_state_row - 1, current_state_col)]
+                for neighbor in neighbors:
+                    neighbor_row = neighbor[0]
+                    neighbor_col = neighbor[1]
+                    
+                    if (self.is_open(neighbor_row, neighbor_col) or self.is_goal(neighbor_row, neighbor_col)):
+                        item_to_push = (current_state, neighbor)
+                        h_cost = self.diagonal_distance(neighbor_row, neighbor_col, goal_state[0], goal_state[1])
+                        heapq.heappush(frontier, (h_cost, item_to_push))
+        
+        # no path from start state to goal state
+        return [], explored
+    
     def _render_frame(self, screen, window_width, window_height):
         screen.fill("white")
 
@@ -302,15 +497,43 @@ class Maze():
 maze = Maze(15)
 print(maze.maze)
 
+print("\n")
+
 path, searched = maze.a_star_manhattan()
 print(path)
+print("\n")
+print(searched)
+
+print("\n")
 
 path, searched = maze.a_star_euclidean()
 print(path)
 
+print("\n")
+
 path, searched = maze.a_star_diagonal()
 print(path)
 
+print("\n")
+
+path, searched = maze.greedy_euclidean()
+print(path)
+print("\n")
+print(searched)
+
+print("\n")
+
+path, searched = maze.greedy_manhattan()
+print(path)
+print("\n")
+print(searched)
+
+print("\n")
+
+path, searched = maze.greedy_diagonal()
+print(path)
+print("\n")
+print(searched)
 
 # window_width = 400
 # window_height = 400
