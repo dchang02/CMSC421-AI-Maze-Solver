@@ -95,23 +95,17 @@ class Maze():
             return self.maze[row][col] == 'G'
         
     def bfs(self):
-
-        start_row, start_col = 0, 0
-
-        if self.is_goal(start_row, start_col):
-            return [(start_row, start_col)], [(start_row, start_col)]
-
-        # Queue for BFS with (row, col, path taken to reach here)
-        queue = deque([(start_row, start_col, [(start_row, start_col)])])
+        row, col = 0, 0
+        if self.is_goal(row, col):
+            return [(row, col)], [(row, col)]
+        queue = deque([(row, col, [(row, col)])])
         visited = []
-        visited.append((start_row, start_col))
-
+        visited.append((row, col))
         while queue:
-            current_row, current_col, path = queue.popleft()
-
-            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                new_row, new_col = current_row + dr, current_col + dc
-
+            curr_row, curr_col, path = queue.popleft()
+            for diff_row, diff_col in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                new_row = curr_row + diff_row
+                new_col = curr_col + diff_col
                 if self.is_valid(new_row, new_col) and (new_row, new_col) not in visited:
                     if self.is_open(new_row, new_col) or self.is_goal(new_row, new_col):
                         new_path = path + [(new_row, new_col)]
@@ -119,25 +113,20 @@ class Maze():
                             return new_path, visited
                         queue.append((new_row, new_col, new_path))
                         visited.append((new_row, new_col))
-
         return [], visited
     
     def dfs(self):
-        start_row, start_col = 0, 0
-        if self.is_goal(start_row, start_col):
-            return [(start_row, start_col)], [(start_row, start_col)]
-
-        # Stack for DFS with (row, col, path taken to reach here)
-        stack = [(start_row, start_col, [(start_row, start_col)])]
+        row, col = 0, 0
+        if self.is_goal(row, col):
+            return [(row, col)], [(row, col)]
+        stack = [(row, col, [(row, col)])]
         visited = []
-        visited.append((start_row, start_col))
-
+        visited.append((row, col))
         while stack:
-            current_row, current_col, path = stack.pop()
-
-            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                new_row, new_col = current_row + dr, current_col + dc
-
+            curr_row, curr_col, path = stack.pop()
+            for diff_row, diff_col in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                new_row = curr_row + diff_row
+                new_col = curr_col + diff_col
                 if self.is_valid(new_row, new_col) and (new_row, new_col) not in visited:
                     if self.is_open(new_row, new_col) or self.is_goal(new_row, new_col):
                         new_path = path + [(new_row, new_col)]
@@ -145,7 +134,6 @@ class Maze():
                             return new_path, visited
                         stack.append((new_row, new_col, new_path))
                         visited.append((new_row, new_col))
-
         return [], visited
 
     # Returns the path from the starting cell to the goal cell
