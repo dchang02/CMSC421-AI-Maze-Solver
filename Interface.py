@@ -8,11 +8,9 @@ import time
 
 def initialize_folders(algorithms):
     for alg in algorithms:
-        #if not os.path.exists(f"path/{alg.lower()}/"):
-        #    os.makedirs(f"path/{alg.lower()}/")
+
         if not os.path.exists(f"visited/{alg.lower()}/"):
             os.makedirs(f"visited/{alg.lower()}/")
-        #Maze.delete_files_in_directory(f"path/{alg.lower()}/")
         Maze.delete_files_in_directory(f"visited/{alg.lower()}/")
 
 def reset_maze():
@@ -81,7 +79,6 @@ def solve_maze():
         path, visited = maze.a_star_diagonal()
     elif selected_algorithm == "A Star Euclidean":
         path, visited = maze.a_star_euclidean()
-    print(visited)
     
     window_width = 400
     window_height = 400
@@ -97,7 +94,6 @@ def solve_maze():
         img = Image.fromarray(view, 'RGB')
         img.save(f"visited/{selected_algorithm.lower()}/{selected_algorithm.lower()}_{count:03}.png")
 
-    #count = 0
     for i in range(len(path)):
 
         row, col = path[i]
@@ -131,7 +127,7 @@ def display_slideshow(selected_algorithm):
             image_label.image = img_tk
             index += 1
             if index < len(image_list) and not resetted:
-                root.after(100, update_image, index)
+                root.after(50, update_image, index)
     
     update_image(index)
 
@@ -142,7 +138,7 @@ maze = Maze.Maze(10, 0)
 resetted = True
 # Create main window
 root = tk.Tk()
-root.title("Maze Generator App")
+root.title("Maze Solver")
 root.geometry("800x400")
 
 # Create left and right frames
