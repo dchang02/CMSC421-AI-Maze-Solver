@@ -1,5 +1,9 @@
 # AI Maze Solver (Uniformed and Informed Search): 
 ## This program generates and solves mazes using uninformed and informed search strategies. This project demonstrates the basics of search algorithms.
+## To run the Maze Solver: run Interface.py using 
+```
+python Interface.py
+```
 - The project will randomly generate a 2-dimensional (n x n) sized maze.
 - The maze consists of (n x n) maze cells with the top-left cell being the starting cell and the bottom-right cell being the ending cell.
 - The maze contains randomly generated walls in the maze cells.
