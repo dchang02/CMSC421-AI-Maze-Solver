@@ -1,6 +1,6 @@
 # AI Maze Solver (Uniformed and Informed Search): 
 ## This program generates and solves mazes using uninformed and informed search strategies. This project demonstrates the basics of search algorithms.
-## To run the Maze Solver: run Interface.py using 
+To run the Maze Solver: run Interface.py using 
 ```
 python Interface.py
 ```
